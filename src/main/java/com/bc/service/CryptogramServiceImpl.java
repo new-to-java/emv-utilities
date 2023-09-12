@@ -4,6 +4,7 @@ import com.bc.enums.CryptogramVersionNumber;
 import com.bc.enums.UdkDerivationOption;
 import com.bc.requestResponse.ArqcGenerateRequest;
 import com.bc.requestResponse.ArqcGenerateResponse;
+import com.bc.utils.ArpcGen;
 import com.bc.utils.ArqcGen;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -17,22 +18,26 @@ public class CryptogramServiceImpl {
      */
     public static ArqcGenerateResponse generateArqcAndArpc(ArqcGenerateRequest arqcGenerateRequest)
             throws Exception {
-
         ArqcGenerateResponse arqcGenerateResponse = new ArqcGenerateResponse();
         boolean isValidArqcGenerationRequest = validateArqcGenerateRequest(arqcGenerateRequest);
         if (isValidArqcGenerationRequest){
             ArqcGen arqcGen = new ArqcGen();
+            ArpcGen arpcGen = new ArpcGen();
             mapArqcGenerateRequest(arqcGenerateRequest, arqcGen);
-            String arqc = arqcGen.getArqc();
+            String arqc = arqcGen.getArqc().toUpperCase();
             arqcGenerateResponse.setArqc(arqc);
-            arqcGenerateResponse.setArpc("Wait for implmentation");
+
+            arpcGen.setArqc(arqc);
+            arpcGen.setCsuMethod(true);
+            arpcGen.setArcOrCsu("00800000");
+            arpcGen.setSessionKey(arqcGen.getUskLeft() + arqcGen.getUskRight());
+            arqcGenerateResponse.setArpc(arpcGen.getArpc().toUpperCase());
         }
         return arqcGenerateResponse;
     }
 
     /**
      * Map ArqcGenerateRequest object to ArqcGen object attributes
-     *
      * @param arqcGenerateRequest ArqcGenerateRequest API request object
      * @param arqcGen             Arqc generation utility request object
      * @throws Exception Exception ??? what to put here
@@ -42,19 +47,27 @@ public class CryptogramServiceImpl {
 
         arqcGen.setMdkAc(arqcGenerateRequest.getMdkAc());
         arqcGen.setPan(arqcGenerateRequest.getPan());
-        arqcGen.setPanSeqNbr(arqcGen.getPanSeqNbr());
-        arqcGen.setAmountAuthorised(arqcGenerateRequest.getAmountAuthorised());
-        arqcGen.setAmountOther(arqcGenerateRequest.getAmountOther());
-        arqcGen.setTerminalCountryCode(arqcGenerateRequest.getTerminalCountryCode());
+        arqcGen.setPanSeqNbr("0".repeat(2 - arqcGenerateRequest.getPanSeqNbr().length()) + arqcGenerateRequest.getPanSeqNbr());
+        arqcGen.setAmountAuthorised("0".repeat(12 - arqcGenerateRequest.getAmountAuthorised().length())
+                + arqcGenerateRequest.getAmountAuthorised());
+        arqcGen.setAmountOther("0".repeat(12 - arqcGenerateRequest.getAmountOther().length())
+                + arqcGenerateRequest.getAmountOther());;
+        arqcGen.setTerminalCountryCode("0".repeat(4 - arqcGenerateRequest.getTerminalCountryCode().length())
+                + arqcGenerateRequest.getTerminalCountryCode());
         arqcGen.setTerminalVerificationResults(arqcGenerateRequest.getTerminalVerificationResults());
-        arqcGen.setTransactionCurrencyCode(arqcGenerateRequest.getTransactionCurrencyCode());
-        arqcGen.setTransactionDate(arqcGenerateRequest.getTransactionDate());
+        arqcGen.setTransactionCurrencyCode("0".repeat(4 - arqcGenerateRequest.getTransactionCurrencyCode().length())
+                + arqcGenerateRequest.getTransactionCurrencyCode());
+        arqcGen.setTransactionDate(arqcGenerateRequest.getTransactionDate().substring(2,4)
+                + arqcGenerateRequest.getTransactionDate().substring(5,7)
+                + arqcGenerateRequest.getTransactionDate().substring(8));
         arqcGen.setTransactionType(arqcGenerateRequest.getTransactionType());
         arqcGen.setUnpredictableNumber(arqcGenerateRequest.getUnpredictableNumber());
         arqcGen.setApplicationInterchangeProfile(arqcGenerateRequest.getApplicationInterchangeProfile());
         arqcGen.setIssuerApplicationData(arqcGenerateRequest.getIssuerApplicationData());
-        arqcGen.setUdkDerivationOption(UdkDerivationOption.Option_A); // Possibly need adding in the API request object
-        arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18); // Possibly need adding in the API request object
+        arqcGen.setApplicationTransactionCounter(arqcGenerateRequest.getApplicationTransactionCounter());
+        arqcGen.setUdkDerivationOption(UdkDerivationOption.Option_A); // Eventually need an attribute in the request
+        arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18); // Need to move this to the API request object and introduce CSU for older CVNs
+//        arqcGen.setDebug(true);
 
     }
 
