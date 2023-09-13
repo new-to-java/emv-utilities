@@ -3,7 +3,6 @@ package com.bc.rest.client;
 import com.bc.api.CryptogramFunctionsApi;
 import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.service.CryptogramServiceImpl;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -19,7 +18,6 @@ import com.bc.requestResponse.ArqcValidateRequest;
  * Implementation class for Cryptogram functions API Interface
  */
 @Path("/EmvUtilities")
-//@ApplicationScoped
 public class CryptogramFunctionsApiImpl implements CryptogramFunctionsApi {
 
     @Inject
@@ -34,9 +32,14 @@ public class CryptogramFunctionsApiImpl implements CryptogramFunctionsApi {
     @Path("/Cryptogram/Arqc/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response ArqcGenerate(ArqcGenerateRequest arqcGenerateRequest) throws Exception {
-        ArqcGenerateResponse arqcGenerateResponse = CryptogramServiceImpl.generateArqcAndArpc(arqcGenerateRequest);
-        return Response.status(Response.Status.OK).entity(arqcGenerateResponse).build();
+    public Response ArqcGenerate(ArqcGenerateRequest arqcGenerateRequest) {
+        try {
+            ArqcGenerateResponse arqcGenerateResponse = CryptogramServiceImpl.generateArqcAndArpc(arqcGenerateRequest);
+            return Response.status(Response.Status.OK).entity(arqcGenerateResponse).build();
+        }
+        catch(Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
     }
 
     /**

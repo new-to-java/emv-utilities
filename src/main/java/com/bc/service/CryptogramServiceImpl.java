@@ -7,6 +7,7 @@ import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.utils.ArpcGen;
 import com.bc.utils.ArqcGen;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.util.List;
 
 @ApplicationScoped
 public class CryptogramServiceImpl {
@@ -20,13 +21,16 @@ public class CryptogramServiceImpl {
             throws Exception {
         ArqcGenerateResponse arqcGenerateResponse = new ArqcGenerateResponse();
         boolean isValidArqcGenerationRequest = validateArqcGenerateRequest(arqcGenerateRequest);
+        boolean isVisaPan = checkForVisaPan(arqcGenerateRequest.getPan());
+//        List<String> parsedIad = issuerApplicationDataParser(arqcGenerateRequest.getIssuerApplicationData(), isVisaPan);
+//        String cryptogramVersionNumber =  parsedIad.get(1);
+
         if (isValidArqcGenerationRequest){
             ArqcGen arqcGen = new ArqcGen();
             ArpcGen arpcGen = new ArpcGen();
-            mapArqcGenerateRequest(arqcGenerateRequest, arqcGen);
+            mapArqcGenerateRequest(arqcGenerateRequest, arqcGen); // Is this a call by reference??
             String arqc = arqcGen.getArqc().toUpperCase();
             arqcGenerateResponse.setArqc(arqc);
-
             arpcGen.setArqc(arqc);
             arpcGen.setCsuMethod(true);
             arpcGen.setArcOrCsu("00800000");
@@ -37,14 +41,35 @@ public class CryptogramServiceImpl {
     }
 
     /**
+     * Check if a given Pan is Visa pan or not
+     * @param pan Pan to be verified
+     * @return True if visa pan, else return false
+     */
+    private static boolean checkForVisaPan(String pan){
+        if (pan.charAt(0) == '0'){ //Assume zero padded 16 digit PAN
+            return pan.charAt(3) == '4';
+        }
+        return pan.charAt(0) == '4';
+    }
+
+    /**
+     * Parse issuer application data based on payment scheme
+     * @param iad Issued Application Data received in the reuqest
+     * @return List of strings containing parsed IAD data
+     */
+    private static List<String> issuerApplicationDataParser(String iad, boolean isVisaPan) {
+
+        return null;
+    }
+
+    /**
      * Map ArqcGenerateRequest object to ArqcGen object attributes
      * @param arqcGenerateRequest ArqcGenerateRequest API request object
      * @param arqcGen             Arqc generation utility request object
      * @throws Exception Exception ??? what to put here
      */
-    private static void mapArqcGenerateRequest(ArqcGenerateRequest arqcGenerateRequest, ArqcGen arqcGen) // Call by reference??
-            throws Exception {
-
+    private static void mapArqcGenerateRequest(ArqcGenerateRequest arqcGenerateRequest, ArqcGen arqcGen) throws Exception
+             {
         arqcGen.setMdkAc(arqcGenerateRequest.getMdkAc());
         arqcGen.setPan(arqcGenerateRequest.getPan());
         arqcGen.setPanSeqNbr("0".repeat(2 - arqcGenerateRequest.getPanSeqNbr().length()) + arqcGenerateRequest.getPanSeqNbr());
@@ -67,7 +92,7 @@ public class CryptogramServiceImpl {
         arqcGen.setApplicationTransactionCounter(arqcGenerateRequest.getApplicationTransactionCounter());
         arqcGen.setUdkDerivationOption(UdkDerivationOption.Option_A); // Eventually need an attribute in the request
         arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18); // Need to move this to the API request object and introduce CSU for older CVNs
-//        arqcGen.setDebug(true);
+        arqcGen.setDebug(false);
 
     }
 
