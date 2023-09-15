@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-import com.bc.enums.CryptogramVersionNumber;
-import org.hibernate.validator.constraints.Length;
 import static com.bc.constants.Patterns.*;
 
 @Getter
@@ -13,7 +11,7 @@ import static com.bc.constants.Patterns.*;
 public class ArqcGenerateRequest {
     @JsonProperty("Pan")
     @NotBlank(message = "Pan required, please provide a value.")
-    @Pattern(regexp = DECIMAL_16TO19_DIGITS, message = "Pan is required, must be numeric and 16 to 19 digits long.")
+    @Pattern(regexp = DECIMAL_16TO19_DIGITS, message = "Pan is required, must be numeric and 16 digits long.")
     private String pan;
     @JsonProperty("PanSequence")
     @NotBlank(message = "PanSequence required, please provide a value.")

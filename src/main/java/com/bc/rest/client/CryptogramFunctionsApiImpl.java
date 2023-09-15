@@ -1,6 +1,5 @@
 package com.bc.rest.client;
 
-import com.bc.api.CryptogramFunctionsApi;
 import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.service.CryptogramServiceImpl;
 import jakarta.inject.Inject;
@@ -18,7 +17,7 @@ import com.bc.requestResponse.ArqcValidateRequest;
  * Implementation class for Cryptogram functions API Interface
  */
 @Path("/EmvUtilities")
-public class CryptogramFunctionsApiImpl implements CryptogramFunctionsApi {
+public class CryptogramFunctionsApiImpl {
 
     @Inject
     CryptogramServiceImpl cryptogramServiceImpl;

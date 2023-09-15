@@ -6,8 +6,10 @@ import com.bc.requestResponse.ArqcGenerateRequest;
 import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.utils.ArpcGen;
 import com.bc.utils.ArqcGen;
+import com.bc.utils.IADParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class CryptogramServiceImpl {
@@ -22,6 +24,7 @@ public class CryptogramServiceImpl {
         ArqcGenerateResponse arqcGenerateResponse = new ArqcGenerateResponse();
         boolean isValidArqcGenerationRequest = validateArqcGenerateRequest(arqcGenerateRequest);
         boolean isVisaPan = checkForVisaPan(arqcGenerateRequest.getPan());
+        System.out.println("Visa PAN: " + isVisaPan);
 //        List<String> parsedIad = issuerApplicationDataParser(arqcGenerateRequest.getIssuerApplicationData(), isVisaPan);
 //        String cryptogramVersionNumber =  parsedIad.get(1);
 
@@ -41,26 +44,14 @@ public class CryptogramServiceImpl {
     }
 
     /**
-     * Check if a given Pan is Visa pan or not
+     * Check if a given Pan is Visa pan or not by checking first character of PAN
      * @param pan Pan to be verified
      * @return True if visa pan, else return false
      */
     private static boolean checkForVisaPan(String pan){
-        if (pan.charAt(0) == '0'){ //Assume zero padded 16 digit PAN
-            return pan.charAt(3) == '4';
-        }
         return pan.charAt(0) == '4';
     }
 
-    /**
-     * Parse issuer application data based on payment scheme
-     * @param iad Issued Application Data received in the reuqest
-     * @return List of strings containing parsed IAD data
-     */
-    private static List<String> issuerApplicationDataParser(String iad, boolean isVisaPan) {
-
-        return null;
-    }
 
     /**
      * Map ArqcGenerateRequest object to ArqcGen object attributes
@@ -93,6 +84,7 @@ public class CryptogramServiceImpl {
         arqcGen.setUdkDerivationOption(UdkDerivationOption.Option_A); // Eventually need an attribute in the request
         arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18); // Need to move this to the API request object and introduce CSU for older CVNs
         arqcGen.setDebug(false);
+        IADParser.parse(arqcGenerateRequest.getIssuerApplicationData(), false);
 
     }
 
