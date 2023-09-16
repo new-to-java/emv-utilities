@@ -2,6 +2,7 @@ package com.bc.rest.client;
 
 import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.service.CryptogramServiceImpl;
+import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -12,6 +13,8 @@ import jakarta.ws.rs.core.Response;
 import com.bc.requestResponse.ArpcGenerateRequest;
 import com.bc.requestResponse.ArqcGenerateRequest;
 import com.bc.requestResponse.ArqcValidateRequest;
+
+import java.util.logging.Logger;
 
 /**
  * Implementation class for Cryptogram functions API Interface

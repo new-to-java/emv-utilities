@@ -1,9 +1,7 @@
 package com.bc.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Parse issuer application data
@@ -15,13 +13,13 @@ public class IADParser {
      * @param iad Issued Application Data received in the reuqest
      * @return List of strings containing parsed IAD data
     */
-    public static void parse(String iad, boolean isVisaPan) {
-
-//        if (isVisaPan) return visaIadParser(iad);
-//        else return mastercardIadParser(iad);
-        ccdCompliantIAD(iad);
-        visaIAD("06011203A000000F0300001030800000046920AE952C48");
-
+    public static List<String> parse(String iad, boolean isVisaPan) {
+        mchipIadParser(iad);
+        if (isVisaPan){
+            return visaIAD(iad); // Visa IADs
+        } else if (iad.length() == 64){ // CCD compliant IAD
+            return ccdCompliantIAD(iad);
+        } else return mchipIadParser(iad); // MasterCard IADs
     }
 
     /**
@@ -39,8 +37,7 @@ public class IADParser {
      * DD                       Discretionary Data (Not parsed)
      */
     //private static Map ccdCompliantIAD(String iad){
-    private static void ccdCompliantIAD(String iad){
-        Map ccdIad = new HashMap();
+    private static List<String> ccdCompliantIAD(String iad){
         List<String> ccdCompliantIad = new ArrayList<>();
         ccdCompliantIad.add("Format-A"); // 0 - IAD format
         ccdCompliantIad.add(iad.substring(0,2)); // 1 - Length indicator: 1 byte
@@ -50,32 +47,21 @@ public class IADParser {
         ccdCompliantIad.add(iad.substring(16,32)); // 5 - Counters: 8 bytes
         ccdCompliantIad.add(iad.substring(32,34)); // 6 - Issuer Discretionary Data length: 1 byte
         ccdCompliantIad.add(iad.substring(34)); // 7 - Issuer Discretionary Data: 15 bytes
-        int iadLength = Integer.parseInt(ccdCompliantIad.get(1), 16);
-        int iddLength = Integer.parseInt(ccdCompliantIad.get(6), 16);
-        int iadExpectedTotalLength = iadLength + iddLength + 2; // length increased by 2 to account for 1 byte each of two length indicators
-        System.out.println("CCD Compliant IAD");
-        System.out.println("-----------------------------------------------------------------------------");
-        for (String string: ccdCompliantIad
-             ) {
-            System.out.println("IAD: " + string);
-        }
-        System.out.println("Valid IAD CCI: " + isCcdIadCciValid(ccdCompliantIad.get(2)));
-        System.out.println("Valid IAD Length indicators: " + isCcdIadIddLengthIndicatorValid(ccdCompliantIad.get(1), ccdCompliantIad.get(6)));
-        System.out.println("Valid IAD total length: " + isIadLengthValid(iad, iadExpectedTotalLength));
+        return ccdCompliantIad;
     }
 
-    /**
+/*    /**
      * Check if a CCD compliant IAD's IAD and IDD length indicators are set to 0xOF
      * @param iadLengthIndicator IAD length indicator extracted, must be set to 0x0F for CCD compliant IAD
      * @param iddLengthIndicator IDD length indicator extracted, must be set to 0x0F for CCD compliant IAD
      * @return True if valid, else return False
      */
-    private static boolean isCcdIadIddLengthIndicatorValid(String iadLengthIndicator, String iddLengthIndicator){
+/*    private static boolean isCcdIadIddLengthIndicatorValid(String iadLengthIndicator, String iddLengthIndicator){
         String HEX_0F = "0F";
         return iadLengthIndicator.equalsIgnoreCase(HEX_0F) && iddLengthIndicator.equalsIgnoreCase(HEX_0F);
     }
-
-    /**
+*/
+/*    /**
      * Check if a CCD compliant IAD has valid Common Core Identifier set
      * @param commonCoreIdentifier Common Core Identifier value extracted from IAD, format is:
      * - Left nibble: must be 0X0A
@@ -84,53 +70,31 @@ public class IADParser {
      *   - 0x06: CCD AES Version 4.1 Cryptogram Version
      * @return True if valid, else return False
      */
-    private static boolean isCcdIadCciValid(String commonCoreIdentifier){
+/*    private static boolean isCcdIadCciValid(String commonCoreIdentifier){
         String FORMAT_A_TDEA_41 = "A5";
         String FORMAT_A_AES_41 = "A6";
         return commonCoreIdentifier.equalsIgnoreCase(FORMAT_A_AES_41) ||
                 commonCoreIdentifier.equalsIgnoreCase(FORMAT_A_TDEA_41);
     }
-
+*/
     /**
      * Parser method for a Visa Format 0/1/3 and Format 2 IAD
      * @param iad Issuer Application Data (9F10)
      * @return Map with parser IAD
      */
-    private static void visaIAD(String iad){
-        List <String> format013Iad = visaFormat013IadParser(iad);
-        System.out.println("Format-0/1/3 IAD");
-        System.out.println("-----------------------------------------------------------------------------");
-        for (String string: format013Iad
-             ) {
-            System.out.println("IAD: " + string);
-        } ;
-        int iadLength = Integer.parseInt(format013Iad.get(1), 16);
-        int iddLength = Integer.parseInt(format013Iad.get(5), 16);
-        int iadExpectedTotalLength = iadLength + iddLength + 2; // length increased by 2 to account for 1 byte each of two length indicators
-        System.out.println("Visa Format 2 IAD");
-        for (String string: format013Iad
-        ) {
-            System.out.println("IAD: " + string);
+    private static List<String> visaIAD(String iad){
+        switch (iad.length()/2){
+            case 32 -> {
+                return visaFormat2IadParser(iad);
+            }
+            default -> {
+                return visaFormat013IadParser(iad);
+            }
         }
-        System.out.println("Valid IAD total length: " + isIadLengthValid(iad, iadExpectedTotalLength));
-
-        List <String> format2Iad = visaFormat2IadParser("1F011203A000000F0300001030800000046920AE952C48000000000000000000");
-        System.out.println("Format-2 IAD");
-        System.out.println("-----------------------------------------------------------------------------");
-        for (String string: format2Iad
-        ) {
-            System.out.println("IAD: " + string);
-        }
-        iadLength = Integer.parseInt(format2Iad.get(1), 16);
-        iddLength = Integer.parseInt(format2Iad.get(5), 16);
-        iadExpectedTotalLength = iadLength + iddLength + 2; // length increased by 2 to account for 1 byte each of two length indicators
-        System.out.println("Valid IAD total length: " + isIadLengthValid(iad, iadExpectedTotalLength));
     }
 
     /**
      * Parse a Visa Format 0/1/3 IAD into components. Reference: Visa VIS 1.6 Table A-1 tag 9F10 details
-     * Key                      Value
-     * ---------                ----------------------
      * IAD Format               Format-0/1/3
      * LengthIndicator          "06" - Format-0/1/3
      * DKI                      Derivation Key Index
@@ -159,8 +123,6 @@ public class IADParser {
      * Parse a Visa Format 2 IAD into components. Reference: Visa VIS 1.6 Table A-1 tag 9F10 details
      * Key                  Value
      * ---------            ----------------------
-     * ErrorCode            null - No errors/4 character error code
-     * ErrorDescription     null - No errors/Error description
      * IAD Format           Format-2
      * LengthIndicator      "1F" - Format 2
      * CryptogramVersion    Left nibble - IAD format/Right Nibble CVN
@@ -185,13 +147,102 @@ public class IADParser {
     }
 
     /**
+     * Mastercard m/Chip advance IAD parser driver method
+     * @param iad Issuer application data (9F10)
+     * @return Parsed list of strings comprised of IAD components
+     */
+    private static List<String> mchipIadParser(String iad){
+        switch (iad.length()/2){
+            case 8 -> {
+                return mChip2122IadParser(iad);
+            }
+            case 9 -> {
+                return mChip205IadParser(iad);
+            }
+            default -> {
+                return mChip4IadParser(iad);
+            }
+        }
+    }
+
+    /**
+     * Parse Mastercard m/Chip4 IAD into components. Reference: M/Chip advance card application specification
+     * Key                  Value
+     * ---------            ----------------------
+     * IAD Format           M/Chip4
+     * DKI                  Derivation Key Index
+     * CVN                  Cryptogram Version Number
+     * CVR                  6 byte Card Verification Results (Not parsed, used CVR parser to parse)
+     * DAC/ICC              DAC/ICC Dynamic Number
+     * Counters+LO-ATC      Plaintext/Encrypted counters & Last Online ATC
+     *
+     * @param iad Issuer application data (9F10)
+     * @return Parsed list of strings comprised of IAD components
+     */
+    private static List<String> mChip4IadParser(String iad) {
+        List<String> mastecardStandardFormatIad = new ArrayList<>();
+        mastecardStandardFormatIad.add(iad.substring(0,2)); // 0 - Key Derivation Index
+        mastecardStandardFormatIad.add(iad.substring(2,4)); // 1 - Cryptogram Version Number
+        mastecardStandardFormatIad.add(iad.substring(4,16)); // 2 - Card Verification Results
+        mastecardStandardFormatIad.add(iad.substring(16,20)); // 3 - DAC/ICC Dynamic Number
+        mastecardStandardFormatIad.add(iad.substring(20)); // 4 - Plaintext/Encrypted Counters and LOATC
+        return mastecardStandardFormatIad;
+    }
+
+    /**
+     * Parse Mastercard m/Chip2.05 IAD into components. Reference: M/Chip advance card application specification
+     * Key                  Value
+     * ---------            ----------------------
+     * IAD Format           M/Chip2.05
+     * Length               IAD Length
+     * DKI                  Derivation Key Index
+     * CVN                  Cryptogram Version Number
+     * CVR                  4 byte Card Verification Results (Not parsed, used CVR parser to parse)
+     * DAC/ICC              DAC/ICC Dynamic Number
+     *
+     * @param iad Issuer application data (9F10)
+     * @return Parsed list of strings comprised of IAD components
+     */
+    private static List<String> mChip205IadParser(String iad) {
+        List<String> mastecardStandardFormatIad = new ArrayList<>();
+        mastecardStandardFormatIad.add(iad.substring(0,2)); // 0 - Length
+        mastecardStandardFormatIad.add(iad.substring(2,4)); // 1 - Key Derivation Index
+        mastecardStandardFormatIad.add(iad.substring(4,6)); // 2 - Cryptogram Version Number
+        mastecardStandardFormatIad.add(iad.substring(6,14)); // 3 - Card Verification Results
+        mastecardStandardFormatIad.add(iad.substring(14,18)); // 4 - DAC/ICC Dynamic Number
+        return mastecardStandardFormatIad;
+    }
+
+    /**
+     * Parse Mastercard m/Chip2.10 IAD into components. Reference: M/Chip advance card application specification
+     * Key                  Value
+     * ---------            ----------------------
+     * IAD Format           M/Chip2.10
+     * DKI                  Derivation Key Index
+     * CVN                  Cryptogram Version Number
+     * CVR                  4 byte Card Verification Results (Not parsed, used CVR parser to parse)
+     * DAC/ICC              DAC/ICC Dynamic Number
+     *
+     * @param iad Issuer application data (9F10)
+     * @return Parsed list of strings comprised of IAD components
+     */
+    private static List<String> mChip2122IadParser(String iad) {
+        List<String> mastecardStandardFormatIad = new ArrayList<>();
+        mastecardStandardFormatIad.add(iad.substring(0,2)); // 0 - Key Derivation Index
+        mastecardStandardFormatIad.add(iad.substring(2,4)); // 1 - Cryptogram Version Number
+        mastecardStandardFormatIad.add(iad.substring(4,12)); // 2 - Card Verification Results
+        mastecardStandardFormatIad.add(iad.substring(12,16)); // 3 - DAC/ICC Dynamic Number
+        return mastecardStandardFormatIad;
+    }
+
+/*    /**
      * Perform IAD length check
      * @param iad Issuer Application Data to be validated
      * @param expectedLength Expected length of the IAD
      * @return True if length is valid, else return False
      */
-    private static boolean isIadLengthValid(String iad, int expectedLength){
+/*    private static boolean isIadLengthValid(String iad, int expectedLength){
         return (iad.length()/2) == expectedLength;
     }
-
+*/
 }
