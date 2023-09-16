@@ -1,6 +1,10 @@
 package com.bc.rest.client;
 
+import com.bc.requestResponse.ArqcGenerateRequest;
 import com.bc.requestResponse.ArqcGenerateResponse;
+import com.bc.requestResponse.CvxGenerateRequest;
+import com.bc.requestResponse.CvxGenerateResponse;
+import com.bc.service.CardVerificationCodesServiceImpl;
 import com.bc.service.CryptogramServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -9,16 +13,15 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import com.bc.requestResponse.ArqcGenerateRequest;
 
 /**
  * Implementation class for Cryptogram functions API Interface
  */
 @Path("/EmvUtilities")
-public class CryptogramFunctionsApiImpl {
+public class CvxFunctionsApiImpl {
 
     @Inject
-    CryptogramServiceImpl cryptogramServiceImpl;
+    CardVerificationCodesServiceImpl cardVerificationCodesServiceImpl;
     /**
      * Method hosting REST API and functions for generating Authorisation Request Cryptogram (ARQC) and
      * Authrorisation Response Cryptogram (ARPC)
@@ -26,13 +29,13 @@ public class CryptogramFunctionsApiImpl {
      */
 
     @POST
-    @Path("/Cryptogram/Arqc/Generate")
+    @Path("/Cvx/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response ArqcGenerate(ArqcGenerateRequest arqcGenerateRequest) {
+    public Response generateCvx(CvxGenerateRequest cvxGenerateRequest) {
         try {
-            ArqcGenerateResponse arqcGenerateResponse = CryptogramServiceImpl.generateArqcAndArpc(arqcGenerateRequest);
-            return Response.status(Response.Status.OK).entity(arqcGenerateResponse).build();
+            CvxGenerateResponse cvxGenerateResponse = CardVerificationCodesServiceImpl.generateCvx(cvxGenerateRequest);
+            return Response.status(Response.Status.OK).entity(cvxGenerateResponse).build();
         }
         catch(Exception e){
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

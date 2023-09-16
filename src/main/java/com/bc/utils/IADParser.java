@@ -1,19 +1,25 @@
 package com.bc.utils;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Parse issuer application data
  */
-
+@Getter
 public class IADParser {
+    private String cvn;
+    private String cvr;
+    private String dki;
+    private boolean invalidIad;
     /**
      * Parse issuer application data based on payment scheme
      * @param iad Issued Application Data received in the reuqest
      * @return List of strings containing parsed IAD data
     */
-    public static List<String> parse(String iad, boolean isVisaPan) {
+    public List<String> parse(String iad, boolean isVisaPan) {
         mchipIadParser(iad);
         if (isVisaPan){
             return visaIAD(iad); // Visa IADs
@@ -37,7 +43,7 @@ public class IADParser {
      * DD                       Discretionary Data (Not parsed)
      */
     //private static Map ccdCompliantIAD(String iad){
-    private static List<String> ccdCompliantIAD(String iad){
+    private List<String> ccdCompliantIAD(String iad){
         List<String> ccdCompliantIad = new ArrayList<>();
         ccdCompliantIad.add("Format-A"); // 0 - IAD format
         ccdCompliantIad.add(iad.substring(0,2)); // 1 - Length indicator: 1 byte
@@ -82,15 +88,11 @@ public class IADParser {
      * @param iad Issuer Application Data (9F10)
      * @return Map with parser IAD
      */
-    private static List<String> visaIAD(String iad){
-        switch (iad.length()/2){
-            case 32 -> {
-                return visaFormat2IadParser(iad);
-            }
-            default -> {
-                return visaFormat013IadParser(iad);
-            }
+    private List<String> visaIAD(String iad){
+        if (iad.length() / 2 == 32) {
+            return visaFormat2IadParser(iad);
         }
+        return visaFormat013IadParser(iad);
     }
 
     /**
@@ -106,7 +108,7 @@ public class IADParser {
      * @param iad Issuer application data (9F10)
      * @return Parsed list of strings comprised of IAD components
      */
-    private static List<String> visaFormat013IadParser(String iad) {
+    private List<String> visaFormat013IadParser(String iad) {
         // IAD format 0/1/3
         List<String> visaFormat013Iad = new ArrayList<>();
         visaFormat013Iad.add("Format-0/1/3"); // 0 - IAD Format hardcoded to Format-0/1/3
@@ -116,6 +118,9 @@ public class IADParser {
         visaFormat013Iad.add(iad.substring(6,14)); // 4 - 1 byte Card Verification Results length + Card Verification Results
         visaFormat013Iad.add(iad.substring(14,16)); // 5 - Issuer Discretionary Data length
         visaFormat013Iad.add(iad.substring(16)); // 6 - Issuer Discretionary Data
+        dki = visaFormat013Iad.get(2);
+        cvn = visaFormat013Iad.get(3);
+        cvr = visaFormat013Iad.get(4);
         return visaFormat013Iad;
     }
 
@@ -133,17 +138,20 @@ public class IADParser {
      * @param iad Issuer application data (9F10)
      * @return Parsed list of strings comprised of IAD components
      */
-    private static List<String> visaFormat2IadParser(String iad) {
-        List<String> visaFormat013Iad = new ArrayList<>();
+    private List<String> visaFormat2IadParser(String iad) {
+        List<String> visaFormat2Iad = new ArrayList<>();
         // IAD format 2 is not is use yet
-        visaFormat013Iad.add("Format-2"); // 0 - IAD Format hardcoded to Format-2
-        visaFormat013Iad.add(iad.substring(0,2)); // 1 - IAD length indicator, must be "1F"
-        visaFormat013Iad.add(iad.substring(2,4)); // 2 - Left nibble IAD format/Right nibble Cryptogram Version Number
-        visaFormat013Iad.add(iad.substring(4,6)); // 3 - Derivation Key Index
-        visaFormat013Iad.add(iad.substring(6,16)); // 4-  5 byte Card Verification Results
-        visaFormat013Iad.add(iad.substring(14,16)); // 5 - Issuer Discretionary Data length
-        visaFormat013Iad.add(iad.substring(16)); // 6 - Issuer Discretionary Data
-        return visaFormat013Iad;
+        visaFormat2Iad.add("Format-2"); // 0 - IAD Format hardcoded to Format-2
+        visaFormat2Iad.add(iad.substring(0,2)); // 1 - IAD length indicator, must be "1F"
+        visaFormat2Iad.add(iad.substring(2,4)); // 2 - Left nibble IAD format/Right nibble Cryptogram Version Number
+        visaFormat2Iad.add(iad.substring(4,6)); // 3 - Derivation Key Index
+        visaFormat2Iad.add(iad.substring(6,16)); // 4-  5 byte Card Verification Results
+        visaFormat2Iad.add(iad.substring(14,16)); // 5 - Issuer Discretionary Data length
+        visaFormat2Iad.add(iad.substring(16)); // 6 - Issuer Discretionary Data
+        dki = visaFormat2Iad.get(2);
+        cvn = null;
+        cvr = visaFormat2Iad.get(4);
+        return visaFormat2Iad;
     }
 
     /**
@@ -151,7 +159,7 @@ public class IADParser {
      * @param iad Issuer application data (9F10)
      * @return Parsed list of strings comprised of IAD components
      */
-    private static List<String> mchipIadParser(String iad){
+    private List<String> mchipIadParser(String iad){
         switch (iad.length()/2){
             case 8 -> {
                 return mChip2122IadParser(iad);
@@ -179,14 +187,17 @@ public class IADParser {
      * @param iad Issuer application data (9F10)
      * @return Parsed list of strings comprised of IAD components
      */
-    private static List<String> mChip4IadParser(String iad) {
-        List<String> mastecardStandardFormatIad = new ArrayList<>();
-        mastecardStandardFormatIad.add(iad.substring(0,2)); // 0 - Key Derivation Index
-        mastecardStandardFormatIad.add(iad.substring(2,4)); // 1 - Cryptogram Version Number
-        mastecardStandardFormatIad.add(iad.substring(4,16)); // 2 - Card Verification Results
-        mastecardStandardFormatIad.add(iad.substring(16,20)); // 3 - DAC/ICC Dynamic Number
-        mastecardStandardFormatIad.add(iad.substring(20)); // 4 - Plaintext/Encrypted Counters and LOATC
-        return mastecardStandardFormatIad;
+    private List<String> mChip4IadParser(String iad) {
+        List<String> mChip4FormatIad = new ArrayList<>();
+        mChip4FormatIad.add(iad.substring(0,2)); // 0 - Key Derivation Index
+        mChip4FormatIad.add(iad.substring(2,4)); // 1 - Cryptogram Version Number
+        mChip4FormatIad.add(iad.substring(4,16)); // 2 - Card Verification Results
+        mChip4FormatIad.add(iad.substring(16,20)); // 3 - DAC/ICC Dynamic Number
+        mChip4FormatIad.add(iad.substring(20)); // 4 - Plaintext/Encrypted Counters and LOATC
+        dki = mChip4FormatIad.get(0);
+        cvn = mChip4FormatIad.get(1);
+        cvr = mChip4FormatIad.get(2);
+        return mChip4FormatIad;
     }
 
     /**
@@ -203,14 +214,17 @@ public class IADParser {
      * @param iad Issuer application data (9F10)
      * @return Parsed list of strings comprised of IAD components
      */
-    private static List<String> mChip205IadParser(String iad) {
-        List<String> mastecardStandardFormatIad = new ArrayList<>();
-        mastecardStandardFormatIad.add(iad.substring(0,2)); // 0 - Length
-        mastecardStandardFormatIad.add(iad.substring(2,4)); // 1 - Key Derivation Index
-        mastecardStandardFormatIad.add(iad.substring(4,6)); // 2 - Cryptogram Version Number
-        mastecardStandardFormatIad.add(iad.substring(6,14)); // 3 - Card Verification Results
-        mastecardStandardFormatIad.add(iad.substring(14,18)); // 4 - DAC/ICC Dynamic Number
-        return mastecardStandardFormatIad;
+    private List<String> mChip205IadParser(String iad) {
+        List<String> mChip205FormatIad = new ArrayList<>();
+        mChip205FormatIad.add(iad.substring(0,2)); // 0 - Length
+        mChip205FormatIad.add(iad.substring(2,4)); // 1 - Key Derivation Index
+        mChip205FormatIad.add(iad.substring(4,6)); // 2 - Cryptogram Version Number
+        mChip205FormatIad.add(iad.substring(6,14)); // 3 - Card Verification Results
+        mChip205FormatIad.add(iad.substring(14,18)); // 4 - DAC/ICC Dynamic Number
+        dki = mChip205FormatIad.get(1);
+        cvn = mChip205FormatIad.get(2);
+        cvr = mChip205FormatIad.get(3);
+        return mChip205FormatIad;
     }
 
     /**
@@ -226,13 +240,16 @@ public class IADParser {
      * @param iad Issuer application data (9F10)
      * @return Parsed list of strings comprised of IAD components
      */
-    private static List<String> mChip2122IadParser(String iad) {
-        List<String> mastecardStandardFormatIad = new ArrayList<>();
-        mastecardStandardFormatIad.add(iad.substring(0,2)); // 0 - Key Derivation Index
-        mastecardStandardFormatIad.add(iad.substring(2,4)); // 1 - Cryptogram Version Number
-        mastecardStandardFormatIad.add(iad.substring(4,12)); // 2 - Card Verification Results
-        mastecardStandardFormatIad.add(iad.substring(12,16)); // 3 - DAC/ICC Dynamic Number
-        return mastecardStandardFormatIad;
+    private List<String> mChip2122IadParser(String iad) {
+        List<String> mChip2122FormatIad = new ArrayList<>();
+        mChip2122FormatIad.add(iad.substring(0,2)); // 0 - Key Derivation Index
+        mChip2122FormatIad.add(iad.substring(2,4)); // 1 - Cryptogram Version Number
+        mChip2122FormatIad.add(iad.substring(4,12)); // 2 - Card Verification Results
+        mChip2122FormatIad.add(iad.substring(12,16)); // 3 - DAC/ICC Dynamic Number
+        dki = mChip2122FormatIad.get(0);
+        cvn = mChip2122FormatIad.get(1);
+        cvr = mChip2122FormatIad.get(2);
+        return mChip2122FormatIad;
     }
 
 /*    /**

@@ -9,8 +9,6 @@ import com.bc.utils.ArqcGen;
 import com.bc.utils.IADParser;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.List;
-
 @ApplicationScoped
 public class CryptogramServiceImpl {
 
@@ -22,22 +20,19 @@ public class CryptogramServiceImpl {
     public static ArqcGenerateResponse generateArqcAndArpc(ArqcGenerateRequest arqcGenerateRequest)
             throws Exception {
         ArqcGenerateResponse arqcGenerateResponse = new ArqcGenerateResponse();
-        boolean isValidArqcGenerationRequest = validateArqcGenerateRequest(arqcGenerateRequest);
-//        List<String> parsedIad = issuerApplicationDataParser(arqcGenerateRequest.getIssuerApplicationData(), isVisaPan);
-//        String cryptogramVersionNumber =  parsedIad.get(1);
-
-        if (isValidArqcGenerationRequest){
-            ArqcGen arqcGen = new ArqcGen();
-            ArpcGen arpcGen = new ArpcGen();
-            mapArqcGenerateRequest(arqcGenerateRequest, arqcGen); // Is this a call by reference??
-            String arqc = arqcGen.getArqc().toUpperCase();
-            arqcGenerateResponse.setArqc(arqc);
-            arpcGen.setArqc(arqc);
-            arpcGen.setCsuMethod(true);
-            arpcGen.setArcOrCsu("00800000");
-            arpcGen.setSessionKey(arqcGen.getUskLeft() + arqcGen.getUskRight());
-            arqcGenerateResponse.setArpc(arpcGen.getArpc().toUpperCase());
-        }
+        ArqcGen arqcGen = new ArqcGen();
+        ArpcGen arpcGen = new ArpcGen();
+        // Parse IAD and derive CVN
+        IADParser iadParser = new IADParser();
+        iadParser.parse(arqcGenerateRequest.getIssuerApplicationData(), checkForVisaPan(arqcGenerateRequest.getPan()));
+        mapArqcGenerateRequest(arqcGenerateRequest, arqcGen, iadParser); // Is this a call by reference??
+        String arqc = arqcGen.getArqc().toUpperCase();
+        arqcGenerateResponse.setArqc(arqc);
+        arpcGen.setArqc(arqc);
+        arpcGen.setCsuMethod(!iadParser.getCvn().equals("10") && !iadParser.getCvn().equals("14"));
+        arpcGen.setArcOrCsu(arqcGenerateRequest.getArcOrCsu());
+        arpcGen.setSessionKey(arqcGen.getUskLeft() + arqcGen.getUskRight());
+        arqcGenerateResponse.setArpc(arpcGen.getArpc().toUpperCase());
         return arqcGenerateResponse;
     }
 
@@ -57,7 +52,7 @@ public class CryptogramServiceImpl {
      * @param arqcGen             Arqc generation utility request object
      * @throws Exception Exception ??? what to put here
      */
-    private static void mapArqcGenerateRequest(ArqcGenerateRequest arqcGenerateRequest, ArqcGen arqcGen) throws Exception
+    private static void mapArqcGenerateRequest(ArqcGenerateRequest arqcGenerateRequest, ArqcGen arqcGen, IADParser iadParser) throws Exception
              {
         arqcGen.setMdkAc(arqcGenerateRequest.getMdkAc());
         arqcGen.setPan(arqcGenerateRequest.getPan());
@@ -80,16 +75,12 @@ public class CryptogramServiceImpl {
         arqcGen.setIssuerApplicationData(arqcGenerateRequest.getIssuerApplicationData());
         arqcGen.setApplicationTransactionCounter(arqcGenerateRequest.getApplicationTransactionCounter());
         arqcGen.setUdkDerivationOption(UdkDerivationOption.Option_A); // Eventually need an attribute in the request
-        arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18); // Need to move this to the API request object and introduce CSU for older CVNs
-        arqcGen.setDebug(false);
-        List<String> parsedIad = IADParser.parse(arqcGenerateRequest.getIssuerApplicationData(), checkForVisaPan(arqcGenerateRequest.getPan()));
-                 for (String string: parsedIad
-                      ) {
-                     System.out.println("Parsed IAD:" + string);
-                 }
-    }
-
-    private static boolean validateArqcGenerateRequest(ArqcGenerateRequest arqcGenerateRequest) {
-        return true;
+        // Set CVN for ARQC generation
+        switch (iadParser.getCvn()){
+            case "10" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_10);
+            case "18" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18);
+            case "22" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_22);
+        }
+         // Need to move this to the API request object and introduce CSU for older CVNs
     }
 }

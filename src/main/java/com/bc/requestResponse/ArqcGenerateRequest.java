@@ -65,6 +65,7 @@ public class ArqcGenerateRequest {
     @NotBlank(message = "IssuerApplicationData required, please provide a value.")
     @Pattern(regexp = HEXADECIMAL_14_64_DIGITS, message = "IssuerApplicationData must be 14 to 64 hexadecimal digits.")
     private String issuerApplicationData;
-//    @JsonProperty("CryptogramVersionNumber") // Replace with IAD parser to derive CVN
-//    private CryptogramVersionNumber cryptogramVersionNumber;
+    @JsonProperty("CSUorARC") // Replace with IAD parser to derive CVN
+    @NotBlank(message = "CSUorARC required, please provide either value based on the CVN.")
+    private String arcOrCsu;
 }
