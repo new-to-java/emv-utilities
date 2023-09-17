@@ -4,6 +4,7 @@ import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.service.CryptogramServiceImpl;
 import io.vertx.core.impl.logging.Logger;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -29,7 +30,7 @@ public class CryptogramFunctionsApiImpl {
     @Path("/Cryptogram/Arqc/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response ArqcGenerate(ArqcGenerateRequest arqcGenerateRequest) {
+    public Response ArqcGenerate(@Valid ArqcGenerateRequest arqcGenerateRequest) {
         try {
             ArqcGenerateResponse arqcGenerateResponse = CryptogramServiceImpl.generateArqcAndArpc(arqcGenerateRequest);
             return Response.status(Response.Status.OK).entity(arqcGenerateResponse).build();

@@ -1,12 +1,10 @@
 package com.bc.rest.client;
 
-import com.bc.requestResponse.ArqcGenerateRequest;
-import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.requestResponse.CvxGenerateRequest;
 import com.bc.requestResponse.CvxGenerateResponse;
 import com.bc.service.CardVerificationCodesServiceImpl;
-import com.bc.service.CryptogramServiceImpl;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -32,7 +30,7 @@ public class CvxFunctionsApiImpl {
     @Path("/Cvx/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response generateCvx(CvxGenerateRequest cvxGenerateRequest) throws Exception {
+    public Response generateCvx(@Valid CvxGenerateRequest cvxGenerateRequest) throws Exception {
 //        try {
             CvxGenerateResponse cvxGenerateResponse = CardVerificationCodesServiceImpl.generateCvx(cvxGenerateRequest);
             return Response.status(Response.Status.OK).entity(cvxGenerateResponse).build();
