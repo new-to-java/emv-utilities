@@ -32,14 +32,14 @@ public class CvxFunctionsApiImpl {
     @Path("/Cvx/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response generateCvx(CvxGenerateRequest cvxGenerateRequest) {
-        try {
+    public Response generateCvx(CvxGenerateRequest cvxGenerateRequest) throws Exception {
+//        try {
             CvxGenerateResponse cvxGenerateResponse = CardVerificationCodesServiceImpl.generateCvx(cvxGenerateRequest);
             return Response.status(Response.Status.OK).entity(cvxGenerateResponse).build();
-        }
-        catch(Exception e){
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        }
+//        }
+//        catch(Exception e){
+//            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+//        }
     }
 
     /*

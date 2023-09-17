@@ -2,6 +2,7 @@ package com.bc.rest.client;
 
 import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.service.CryptogramServiceImpl;
+import io.vertx.core.impl.logging.Logger;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -10,7 +11,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.bc.requestResponse.ArqcGenerateRequest;
-
 /**
  * Implementation class for Cryptogram functions API Interface
  */
