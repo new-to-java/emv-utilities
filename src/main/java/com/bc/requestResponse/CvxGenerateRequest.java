@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import static com.bc.constants.Patterns.*;
+import static com.bc.constants.CommonPatterns.*;
 
 @Getter
 @Setter

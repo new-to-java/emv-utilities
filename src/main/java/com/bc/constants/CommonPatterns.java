@@ -3,7 +3,7 @@ package com.bc.constants;
 /**
  * Definitions for all standard patterns that are used by the emv-utilities
  */
-public class Patterns {
+public class CommonPatterns {
     // Decimal patterns
     public static final String DECIMAL_3_DIGITS = "^\\d{3}$";
     public static final String DECIMAL_4_DIGITS = "^\\d{4}$";

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-import static com.bc.constants.Patterns.*;
+import static com.bc.constants.CommonPatterns.*;
 
 @Getter
 @Setter
