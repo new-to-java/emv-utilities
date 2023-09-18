@@ -1,8 +1,9 @@
 package com.bc.rest.client;
 
-import com.bc.requestResponse.CvxGenerateRequest;
-import com.bc.requestResponse.CvxGenerateResponse;
+import com.bc.requestResponse.PinGenerateRequest;
+import com.bc.requestResponse.PinGenerateResponse;
 import com.bc.service.CardVerificationCodesServiceImpl;
+import com.bc.service.PinServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -13,26 +14,27 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 /**
- * Implementation class for CVx functions API
+ * Implementation class for PIN functions API
+ * Only IBM 3624 PIN and Offset method is supported at this time
  */
 @Path("/EmvUtilities")
-public class CvxFunctionsApiImpl {
+public class PinFunctionsApiImpl {
 
     @Inject
     CardVerificationCodesServiceImpl cardVerificationCodesServiceImpl;
     /**
-     * Method hosting REST API and functions for generating CVx values for a Pan
-     * @return JSON response object containing CVx value and the type of CVx
+     * Method hosting REST API and functions for generating PIN and PIN Offset
+     * @return JSON response object containing PIN and PIN Offset
      */
 
     @POST
-    @Path("/Cvx/Generate")
+    @Path("/Pin/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response generateCvx(@Valid CvxGenerateRequest cvxGenerateRequest) throws Exception {
+    public Response generateCvx(@Valid PinGenerateRequest pinGenerateRequest) throws Exception {
 //        try {
-            CvxGenerateResponse cvxGenerateResponse = CardVerificationCodesServiceImpl.generateCvx(cvxGenerateRequest);
-            return Response.status(Response.Status.OK).entity(cvxGenerateResponse).build();
+            PinGenerateResponse pinGenerateResponse = PinServiceImpl.generatePin(pinGenerateRequest);
+            return Response.status(Response.Status.OK).entity(pinGenerateResponse).build();
 //        }
 //        catch(Exception e){
 //            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

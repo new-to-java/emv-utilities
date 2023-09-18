@@ -11,7 +11,7 @@ import static com.bc.constants.Patterns.*;
 public class ArqcGenerateRequest {
     @JsonProperty("Pan")
     @NotBlank(message = "Pan required, please provide a value.")
-    @Pattern(regexp = DECIMAL_16TO19_DIGITS, message = "Pan is required, must be numeric and 16 digits long.")
+    @Pattern(regexp = DECIMAL_16TO19_DIGITS, message = "Pan is required, must be numeric and 16 to 19 digits long.")
     private String pan;
     @JsonProperty("PanSequence")
     @NotBlank(message = "PanSequence required, please provide a value.")
@@ -23,11 +23,11 @@ public class ArqcGenerateRequest {
     private String mdkAc;
     @JsonProperty("AmountAuthorised")
     @NotBlank(message = "AmountAuthorised required, please provide a value.")
-    @Pattern(regexp = DECIMAL_12_DIGITS, message = "AmountAuthorised must be 1 to 12 digits long.")
+    @Pattern(regexp = DECIMAL_1TO12_DIGITS, message = "AmountAuthorised must be 1 to 12 digits long.")
     private String amountAuthorised;
     @JsonProperty("AmountOther")
     @NotBlank(message = "AmountOther required, please provide a value.")
-    @Pattern(regexp = DECIMAL_12_DIGITS, message = "AmountOther must be 1 to 12 digits long.")
+    @Pattern(regexp = DECIMAL_1TO12_DIGITS, message = "AmountOther must be 1 to 12 digits long.")
     private String amountOther;
     @JsonProperty("TerminalCountryCode")
     @NotBlank(message = "TerminalCountryCode required, please provide a value.")

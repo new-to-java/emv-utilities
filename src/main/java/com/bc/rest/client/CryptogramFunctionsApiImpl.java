@@ -3,6 +3,7 @@ package com.bc.rest.client;
 import com.bc.requestResponse.ArqcGenerateResponse;
 import com.bc.service.CryptogramServiceImpl;
 import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -13,15 +14,16 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import com.bc.requestResponse.ArqcGenerateRequest;
 /**
- * Implementation class for Cryptogram functions API Interface
+ * Implementation class for Cryptogram functions API
  */
 @Path("/EmvUtilities")
 public class CryptogramFunctionsApiImpl {
 
     @Inject
     CryptogramServiceImpl cryptogramServiceImpl;
+    Logger log = LoggerFactory.getLogger("new");
     /**
-     * Method hosting REST API and functions for generating Authorisation Request Cryptogram (ARQC) and
+     * Method hosting REST API and functions for generating Authoris\ation Request Cryptogram (ARQC) and
      * Authrorisation Response Cryptogram (ARPC)
      * @return JSON response object containing ARQC and ARPC
      */

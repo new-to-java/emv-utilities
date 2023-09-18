@@ -74,13 +74,22 @@ public class CryptogramServiceImpl {
         arqcGen.setApplicationInterchangeProfile(arqcGenerateRequest.getApplicationInterchangeProfile());
         arqcGen.setIssuerApplicationData(arqcGenerateRequest.getIssuerApplicationData());
         arqcGen.setApplicationTransactionCounter(arqcGenerateRequest.getApplicationTransactionCounter());
-        arqcGen.setUdkDerivationOption(UdkDerivationOption.Option_A); // Eventually need an attribute in the request
+        // This needs to be auto set based on PAN length, I think, PAN greater than 16 digits must use Option_B
+        // for UDK derivation, refer EMV manual BOOK 2 again to understand properly
+        arqcGen.setUdkDerivationOption(UdkDerivationOption.Option_A);
         // Set CVN for ARQC generation
+
+        // Below IAD parser logic is not fully accurate and needs to be reworked as the current logic was based on
+        // some assumptions, additionally the response object must be switched to a Map object such that the parsed IAD
+        // response can be processed in a scheme agnostic manner and any parsed element can be easily retrieved
+        // using the key, instead of relying on IAD attribute positions. Map based approach to be implemented for all
+        // parser modules, e.g., CSU, CVR etc
+
         switch (iadParser.getCvn()){
             case "10" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_10);
             case "18" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18);
             case "22" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_22);
         }
-         // Need to move this to the API request object and introduce CSU for older CVNs
+         // Need to move this to the API request object and introduce ARC for older CVNs
     }
 }
