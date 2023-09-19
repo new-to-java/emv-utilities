@@ -11,8 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import static com.bc.constants.PINFunctions.*;
 
 /**
@@ -175,10 +173,10 @@ public class IBM3624Pin {
     public boolean validatePinRequest(){
 
         List<Boolean> validRequest = new ArrayList<>();
-        validRequest.add(isNumeric(pan));
-        validRequest.add(isNumeric(pinOffset));
-        validRequest.add(isNumeric(pinLength));
-        validRequest.add(isHexadecimal(pvk));
+        validRequest.add(DataChecker.isNumeric(pan));
+        validRequest.add(DataChecker.isNumeric(pinOffset));
+        validRequest.add(DataChecker.isNumeric(pinLength));
+        validRequest.add(DataChecker.isHexadecimal(pvk));
         if (decimalisationTable == null){
             System.out.println("WARN: DECE01: No decimalisation table supplied, using system default table.");
             System.out.println("Default Table: " + Arrays.toString(DEFAULT_DECIMALISATION_TABLE));
@@ -188,7 +186,7 @@ public class IBM3624Pin {
             System.out.println("Default Table: " + Arrays.toString(DEFAULT_DECIMALISATION_TABLE));
             decimalisationTable = DEFAULT_DECIMALISATION_TABLE;
         }
-        validRequest.add(isHexadecimal(Arrays.toString(
+        validRequest.add(DataChecker.isHexadecimal(Arrays.toString(
                 getDecimalisationTable()).replaceAll("[\\[\\]s :,]", "")));
         //Check if any of the validations have failed, if yes, return false, else at end of loop, return true
         for (Boolean aBoolean : validRequest) {
@@ -214,30 +212,6 @@ public class IBM3624Pin {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Check if an input data supplied is numeric
-     * @param checkData Input data to be verified as numeric
-     * @return Returns true, if input data is numeric
-     */
-    public boolean isNumeric(String checkData){
-        String NUM_PATTERN = "[0-9]+";
-        Pattern hexPattern = Pattern.compile(NUM_PATTERN);
-        Matcher hexPatternMatcher = hexPattern.matcher(checkData);
-        return hexPatternMatcher.matches();
-    }
-
-    /**
-     * Verifies if an input data supplied contains valid hexadecimal characters only
-     * @param checkData Input data to be verified as hexadecimal
-     * @return Returns true, if input data contains valid hexadecimal characters
-     */
-    public boolean isHexadecimal(String checkData){
-        String HEX_PATTERN = "[0-9a-fA-F]+";
-        Pattern hexPattern = Pattern.compile(HEX_PATTERN);
-        Matcher hexPatternMatcher = hexPattern.matcher(checkData);
-        return hexPatternMatcher.matches();
     }
 
 }

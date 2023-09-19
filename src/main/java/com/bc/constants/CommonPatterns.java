@@ -5,6 +5,7 @@ package com.bc.constants;
  */
 public class CommonPatterns {
     // Decimal patterns
+    public static final String DECIMAL_1_DIGIT = "^\\d{1}$";
     public static final String DECIMAL_3_DIGITS = "^\\d{3}$";
     public static final String DECIMAL_4_DIGITS = "^\\d{4}$";
     public static final String DECIMAL_1TO2_DIGITS = "^[0-9]{1,2}$";

@@ -2,8 +2,10 @@ package com.bc.rest.client;
 
 import com.bc.requestResponse.PinGenerateRequest;
 import com.bc.requestResponse.PinGenerateResponse;
-import com.bc.service.CardVerificationCodesServiceImpl;
+import com.bc.requestResponse.PvvGenerateRequest;
+import com.bc.requestResponse.PvvGenerateResponse;
 import com.bc.service.PinServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -12,16 +14,18 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation class for PIN functions API
  * Only IBM 3624 PIN and Offset method is supported at this time
  */
 @Path("/EmvUtilities")
+@Slf4j
 public class PinFunctionsApiImpl {
 
     @Inject
-    CardVerificationCodesServiceImpl cardVerificationCodesServiceImpl;
+    PinServiceImpl pinServiceImpl;
     /**
      * Method hosting REST API and functions for generating PIN and PIN Offset
      * @return JSON response object containing PIN and PIN Offset
@@ -31,16 +35,38 @@ public class PinFunctionsApiImpl {
     @Path("/Pin/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response generateCvx(@Valid PinGenerateRequest pinGenerateRequest) throws Exception {
+    public Response generatePin(@Valid PinGenerateRequest pinGenerateRequest) throws Exception {
 //        try {
-            PinGenerateResponse pinGenerateResponse = PinServiceImpl.generatePin(pinGenerateRequest);
-            return Response.status(Response.Status.OK).entity(pinGenerateResponse).build();
+        ObjectMapper objectMapper = new ObjectMapper();
+        log.info(objectMapper.writer().writeValueAsString(pinGenerateRequest));
+        PinGenerateResponse pinGenerateResponse = PinServiceImpl.generatePin(pinGenerateRequest);
+        return Response.status(Response.Status.OK).entity(pinGenerateResponse).build();
 //        }
 //        catch(Exception e){
 //            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
 //        }
     }
 
+    /**
+     * Method hosting REST API and functions for generating PIN Verification Value
+     * @return JSON response object containing PIN and PIN Verification Value
+     */
+
+    @POST
+    @Path("/Pvv/Generate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response generatePvv(@Valid PvvGenerateRequest pvvGenerateRequest) throws Exception {
+//        try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        log.info(objectMapper.writer().writeValueAsString(pvvGenerateRequest));
+        PvvGenerateResponse pvvGenerateResponse = PinServiceImpl.generatePvv(pvvGenerateRequest);
+        return Response.status(Response.Status.OK).entity(pvvGenerateResponse).build();
+//        }
+//        catch(Exception e){
+//            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+//        }
+    }
     /*
      * Pending implementation
      */

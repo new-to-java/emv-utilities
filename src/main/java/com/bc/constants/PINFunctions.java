@@ -9,7 +9,6 @@ public class PINFunctions {
     public static final int MIN_PIN_LENGTH = 4;
     public static final int MAX_PIN_LENGTH = 16;
     public static final String PAD_CHAR = "0";
-    public static final int MAX_PVV_PIN_LEN = 4;
     public static final int MAX_PVV_PAN_LEN = 11;
-
+    public static final int MAX_PVV_TSP_PIN_LEN = 4;
 }

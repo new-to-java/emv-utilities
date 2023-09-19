@@ -2,7 +2,10 @@ package com.bc.service;
 
 import com.bc.requestResponse.PinGenerateRequest;
 import com.bc.requestResponse.PinGenerateResponse;
+import com.bc.requestResponse.PvvGenerateRequest;
+import com.bc.requestResponse.PvvGenerateResponse;
 import com.bc.utils.IBM3624Pin;
+import com.bc.utils.VisaPvv;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -20,6 +23,21 @@ public class PinServiceImpl {
         ibm3624Pin.generateIBM3624Pin();
         mapPinGenerationResponse(pinGenerateResponse, ibm3624Pin);
         return pinGenerateResponse;
+    }
+
+    /**
+     * Driver method for generating PVV based on Visa PVV method
+     * @param pvvGenerateRequest PvvGenerateRequest object containing values required for PVV generation
+     * @return PvvGenerateResponse object containing the PVV value generated
+     */
+    public static PvvGenerateResponse generatePvv(PvvGenerateRequest pvvGenerateRequest)
+            throws Exception {
+        VisaPvv visaPvv = new VisaPvv();
+        PvvGenerateResponse pvvGenerateResponse = new PvvGenerateResponse();
+        mapPvvGenerationRequest(pvvGenerateRequest, visaPvv);
+        visaPvv.generateVisaPvv();
+        mapPvvGenerationResponse(pvvGenerateResponse, visaPvv);
+        return pvvGenerateResponse;
     }
 
     /**
@@ -45,6 +63,29 @@ public class PinServiceImpl {
         pinGenerateResponse.setPinLength(ibm3624Pin.getPinLength());
         pinGenerateResponse.setPinOffset(ibm3624Pin.getPinOffset());
         pinGenerateResponse.setNaturalPin(ibm3624Pin.getNaturalPin());
+    }
+
+    /**
+     * Map the PVV generation API request object to the Visa PVV generation object attributes
+     * @param pvvGenerateRequest PVV generation request object
+     * @param visaPvv Visa PVV generation request object
+     */
+    private static void mapPvvGenerationRequest(PvvGenerateRequest pvvGenerateRequest, VisaPvv visaPvv){
+        visaPvv.setPan(pvvGenerateRequest.getPan());
+        visaPvv.setPin(pvvGenerateRequest.getCustomerPin());
+        visaPvv.setKey(pvvGenerateRequest.getPinVerificationKey());
+        visaPvv.setKeyIndex(pvvGenerateRequest.getPinVerificationKeyIndex());
+    }
+
+    /**
+     * Map the PVV generation response from the Visa PVV after calling the generateVisaPvv function
+     * @param pvvGenerateResponse PVV generation response object
+     * @param visaPvv Visa PVV generation object with PVV generated
+     */
+    private static void mapPvvGenerationResponse(PvvGenerateResponse pvvGenerateResponse, VisaPvv visaPvv){
+        pvvGenerateResponse.setCustomerPin(visaPvv.getPin());
+        pvvGenerateResponse.setPinLength(String.valueOf(visaPvv.getPin().length()));
+        pvvGenerateResponse.setPinVerificationValue(visaPvv.getPinVerificationValue());
     }
 
 }
