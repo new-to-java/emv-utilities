@@ -5,6 +5,8 @@ import com.bc.enums.KeyType;
 import com.bc.enums.UdkDerivationOption;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.DecoderException;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -133,7 +135,7 @@ public class ArqcGen {
     }
 
     public String getArqc() throws NoSuchPaddingException, IllegalBlockSizeException,
-            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         //Generate a Unique Derivation Key
         setUdk(getUniqueDerivationKey());
@@ -161,6 +163,7 @@ public class ArqcGen {
             if (transactionDataSegment != null) {
                 //Based on the document referenced, the first block must be xor'ed with "0x0000000000000000", which
                 //would result in the same value being returned after xor. So I have  skipped implementing that step.
+                //and instead went with direct encryption of the data segment with session key left half
                 if  (loopCount == 1){
                     tempArqc = transactionDataEncrypt(transactionDataSegment, getUskLeft());
                     if (debug) {
@@ -182,7 +185,7 @@ public class ArqcGen {
     }
 
     private String getUniqueDerivationKey() throws NoSuchPaddingException, IllegalBlockSizeException,
-            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
         // Generate UDK key for PAN and Sequence number
         KeyGenerator keyGenerator = new KeyGenerator();
         keyGenerator.pan = getPan();
@@ -203,7 +206,7 @@ public class ArqcGen {
      * @throws InvalidKeyException Could throw this exception
      */
     private String getSessionKey() throws NoSuchPaddingException, IllegalBlockSizeException,
-            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
         // Generate session key
         KeyGenerator keyGenerator = new KeyGenerator();
         keyGenerator.keyType = KeyType.SEK_CRYPTOGRAM;
@@ -227,14 +230,18 @@ public class ArqcGen {
                 getTransactionType() + getUnpredictableNumber() +
                 getApplicationInterchangeProfile() + getApplicationTransactionCounter();
         switch (cryptogramVersionNumber){
-            case CVN_10, CVN_14 -> {
+            case CVN_10:
+            case CVN_14:
                 if (debug) {
                     System.out.println("IAD       : " + getIssuerApplicationData());
                     System.out.println("IAD INPUT      : " + getIssuerApplicationData());
                 }
                 arqcData += getIssuerApplicationData() +  HEX00;
-            }
-            case CVN_18, CVN_22 -> arqcData += getIssuerApplicationData() + HEX80;
+                break;
+        case CVN_18:
+            case CVN_22:
+                arqcData += getIssuerApplicationData() + HEX80;
+                break;
         }
 
         int arqcDataLength = arqcData.length();
@@ -267,7 +274,7 @@ public class ArqcGen {
     }
 
     private String transactionDataEncrypt(String data, String key) throws NoSuchPaddingException,
-            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
 
@@ -278,7 +285,7 @@ public class ArqcGen {
     }
 
     private String transactionDataDecrypt(String data, String key) throws NoSuchPaddingException,
-            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
 

@@ -72,7 +72,7 @@ public class PinServiceImpl {
      */
     private static void mapPvvGenerationRequest(PvvGenerateRequest pvvGenerateRequest, VisaPvv visaPvv){
         visaPvv.setPan(pvvGenerateRequest.getPan());
-        visaPvv.setPin(pvvGenerateRequest.getCustomerPin());
+        visaPvv.setPin(pvvGenerateRequest.getPin());
         visaPvv.setKey(pvvGenerateRequest.getPinVerificationKey());
         visaPvv.setKeyIndex(pvvGenerateRequest.getPinVerificationKeyIndex());
     }

@@ -2,6 +2,8 @@ package com.bc.utils;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.DecoderException;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -16,7 +18,7 @@ public class CvxGen {
     private String expiryDate;
     private String serviceCode;
     private String cvk;
-    public String generateCvx() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    public String generateCvx() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
 //        String cvxInputData = pan + expiryDate + getCvxRequest.getServiceCode();
         StringBuilder cvxInputData = new StringBuilder();
@@ -29,7 +31,7 @@ public class CvxGen {
         return buildCvx(cvxInput, cvkA, cvkB);
     }
 
-    private String buildCvx(String cvxData, String cvkA, String cvkB) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    private String buildCvx(String cvxData, String cvkA, String cvkB) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
         Xor xor = new Xor();

@@ -161,15 +161,12 @@ public class IADParser {
      */
     private List<String> mchipIadParser(String iad){
         switch (iad.length()/2){
-            case 8 -> {
+            case 8:
                 return mChip2122IadParser(iad);
-            }
-            case 9 -> {
+            case 9:
                 return mChip205IadParser(iad);
-            }
-            default -> {
+        default:
                 return mChip4IadParser(iad);
-            }
         }
     }
 

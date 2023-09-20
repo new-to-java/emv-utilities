@@ -86,9 +86,15 @@ public class CryptogramServiceImpl {
         // parser modules, e.g., CSU, CVR etc
 
         switch (iadParser.getCvn()){
-            case "10" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_10);
-            case "18" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18);
-            case "22" -> arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_22);
+            case "10":
+                arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_10);
+                break;
+            case "18":
+                arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_18);
+                break;
+            case "22":
+                arqcGen.setCryptogramVersionNumber(CryptogramVersionNumber.CVN_22);
+                break;
         }
          // Need to move this to the API request object and introduce ARC for older CVNs
     }

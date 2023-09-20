@@ -1,5 +1,7 @@
 package com.bc.utils;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -9,7 +11,7 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
+//import java.util.HexFormat;
 
 /**
  * This class defines methods for performing cryptographic functions that are needed at various EMV data processing
@@ -40,42 +42,50 @@ public class CryptoFunctions {
      * @throws BadPaddingException
      */
     public String tDEAEncrypt() throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+            InvalidKeyException, IllegalBlockSizeException, BadPaddingException, DecoderException {
 
         final String DES_EDE = "DESede";
         final String ECB = "ECB";
         final String NO_PADDING = "NoPadding";
 
         // Since DES works on byte level data blocks, convert key and string to byte data before input
-        byte [] hexKey = HexFormat.of().parseHex(formatTDEAKey());
-        byte [] data = HexFormat.of().parseHex(inputData);
+//        byte [] hexKey = HexFormat.of().parseHex(formatTDEAKey());
+//        byte [] data = HexFormat.of().parseHex(inputData);
+        byte [] hexKey = Hex.decodeHex(formatTDEAKey());
+        byte [] data = Hex.decodeHex(inputData);
+//        System.out.println("Apache Commons to byte array: " + Arrays.toString(Hex.decodeHex(formatTDEAKey())));
+//        System.out.println("Java Util to byte array: " + Arrays.toString(HexFormat.of().parseHex(formatTDEAKey())));
 
         SecretKeySpec masterKey = new SecretKeySpec(hexKey, DES_EDE);
         Cipher cryptography = Cipher.getInstance(DES_EDE + "/" + ECB + "/" + NO_PADDING);
         cryptography.init(Cipher.ENCRYPT_MODE, masterKey);
         byte [] encryptedData =  cryptography.doFinal(data);
-        return  HexFormat.of().formatHex(encryptedData);
-//        return Hex.encodeHexString(encryptedData);
+//        System.out.println("Apache Commons to String: " + Hex.encodeHexString(encryptedData));
+//        System.out.println("Java Util to String: " + HexFormat.of().formatHex(encryptedData));
+//        return  HexFormat.of().formatHex(encryptedData);
+        return Hex.encodeHexString(encryptedData);
 
     }
 
     public String tDEADecrypt() throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+            InvalidKeyException, IllegalBlockSizeException, BadPaddingException, DecoderException {
 
         final String DES_EDE = "DESede";
         final String ECB = "ECB";
         final String NO_PADDING = "NoPadding";
 
         // Since DES works on byte level data blocks, convert key and string to byte data before input
-        byte [] hexKey = HexFormat.of().parseHex(formatTDEAKey());
-        byte [] data = HexFormat.of().parseHex(inputData);
+//        byte [] hexKey = HexFormat.of().parseHex(formatTDEAKey());
+//        byte [] data = HexFormat.of().parseHex(inputData);
+        byte [] hexKey = Hex.decodeHex(formatTDEAKey());
+        byte [] data = Hex.decodeHex(inputData);
 
         SecretKeySpec masterKey = new SecretKeySpec(hexKey, DES_EDE);
         Cipher cryptography = Cipher.getInstance(DES_EDE + "/" + ECB + "/" + NO_PADDING);
         cryptography.init(Cipher.DECRYPT_MODE, masterKey);
         byte [] encryptedData =  cryptography.doFinal(data);
-        return  HexFormat.of().formatHex(encryptedData);
-//        return Hex.encodeHexString(encryptedData);
+//        return  HexFormat.of().formatHex(encryptedData);
+        return Hex.encodeHexString(encryptedData);
 
     }
 

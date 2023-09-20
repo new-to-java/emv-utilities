@@ -16,6 +16,10 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+
 /**
  * Implementation class for PIN functions API
  * Only IBM 3624 PIN and Offset method is supported at this time

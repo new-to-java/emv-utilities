@@ -3,12 +3,13 @@ package com.bc.utils;
 import com.bc.enums.CryptogramVersionNumber;
 import com.bc.enums.KeyType;
 import com.bc.enums.UdkDerivationOption;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 
 public class KeyGenerator {
     public String pan;
@@ -22,23 +23,21 @@ public class KeyGenerator {
     public boolean forceOdd;
     public boolean debug;
 
-    public String getKey() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    public String getKey() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         switch (keyType){
             case UDK_CRYPTOGRAM:
                 switch (udkDerivationOption){
-                    case Option_A -> {
+                    case Option_A:
                         return getUniqueDerivationKeyOptionA();
-                    }
-                    case Option_B -> {
+                    case Option_B:
                         return getUniqueDerivationKeyOptionB();
                     }
-                }
-
             case SEK_CRYPTOGRAM:
                 return getUniqueSessionKey();
+            default:
+                return null;
         }
-        return null;
     }
 
     /**
@@ -50,7 +49,7 @@ public class KeyGenerator {
      * @throws BadPaddingException Could throw this exception
      * @throws InvalidKeyException Could throw this exception
      */
-    private String getUniqueDerivationKeyOptionA() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    private String getUniqueDerivationKeyOptionA() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
         String udkLeft;
         String udkRight;
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
@@ -78,7 +77,7 @@ public class KeyGenerator {
      * @throws InvalidKeyException Could throw this exception
      */
     private String getUniqueDerivationKeyOptionB() throws NoSuchPaddingException, IllegalBlockSizeException,
-            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
         String udkLeft;
         String udkRight;
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
@@ -89,7 +88,18 @@ public class KeyGenerator {
         for(int i = 0; i < sha1Hash.length(); i++){
             char sha1Char = sha1Hash.charAt(i);
             switch (sha1Char){
-                case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> hashResult.append(sha1Char);
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    hashResult.append(sha1Char);
+                    break;
             }
             if (hashResult.length() == 16){
                 break;
@@ -107,12 +117,24 @@ public class KeyGenerator {
             for(int i = 0; i < sha1Hash.length(); i++){
                 char sha1Char = sha1Hash.charAt(i);
                 switch (sha1Char){
-                    case 'a' -> hashResult.append("0");
-                    case 'b' -> hashResult.append("1");
-                    case 'c' -> hashResult.append("2");
-                    case 'd' -> hashResult.append("3");
-                    case 'e' -> hashResult.append("4");
-                    case 'f' -> hashResult.append("5");
+                    case 'a':
+                        hashResult.append("0");
+                        break;
+                    case 'b':
+                        hashResult.append("1");
+                        break;
+                    case 'c':
+                        hashResult.append("2");
+                        break;
+                    case 'd':
+                        hashResult.append("3");
+                        break;
+                    case 'e':
+                        hashResult.append("4");
+                        break;
+                    case 'f':
+                        hashResult.append("5");
+                        break;
                 }
                 if(hashResult.length() == 16){
                     break;
@@ -136,7 +158,7 @@ public class KeyGenerator {
         return udkLeft + udkRight;
     }
 
-    private String getUniqueSessionKey() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    private String getUniqueSessionKey() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
         //Return udk as session key for CVN_10 & CNV_14
         if ((cryptogramVersionNumber == CryptogramVersionNumber.CVN_10)
         || (cryptogramVersionNumber == CryptogramVersionNumber.CVN_14)) return udkCryptogram;
@@ -162,7 +184,7 @@ public class KeyGenerator {
      * left component
      * @return left component data for UDK
      */
-    private String buildUDKLeftComponentData() {
+    private String buildUDKLeftComponentData() throws DecoderException {
         if (debug) {
             System.out.println("UDK left component data: " + udkInputData(pan, panSeq, true));
         }
@@ -174,7 +196,7 @@ public class KeyGenerator {
      * right component
      * @return right component data for UDK
      */
-    private String buildUDKRightComponentData() {
+    private String buildUDKRightComponentData() throws DecoderException {
         if (debug) {
             System.out.println("UDK right component data: " + udkInputData(pan, panSeq, false));
         }
@@ -189,7 +211,7 @@ public class KeyGenerator {
      * @param panSeq   PAN sequence number associated with the card
      * @return         PAN and PAN Sequence number combined as per OPTION_A
      */
-    private String udkInputData(String pan, String panSeq, boolean udkA){
+    private String udkInputData(String pan, String panSeq, boolean udkA) throws DecoderException {
 
         String panAndSeq = (pan + panSeq);
         String padChar = "0";
@@ -214,22 +236,24 @@ public class KeyGenerator {
      * @param panAndSeq This value will be set to the same value as UDK left component data
      * @return Exclusive or data
      */
-    private String exclusiveOr(String panAndSeq){
+    private String exclusiveOr(String panAndSeq) throws DecoderException {
 
         String ALLF = "FFFFFFFFFFFFFFFF";
 
-        byte [] panAndSeqBytes = HexFormat.of().parseHex(panAndSeq); // Convert panAndSeq to Hexadecimal byte array
-        byte [] ALL16FBytes = HexFormat.of().parseHex(ALLF); // Convert 16F chars to Hexadecimal byte array
+//        byte [] panAndSeqBytes = HexFormat.of().parseHex(panAndSeq); // Convert panAndSeq to Hexadecimal byte array
+//        byte [] ALL16FBytes = HexFormat.of().parseHex(ALLF); // Convert 16F chars to Hexadecimal byte array
+        byte [] panAndSeqBytes = Hex.decodeHex((panAndSeq)); // Convert panAndSeq to Hexadecimal byte array
+        byte [] ALL16FBytes = Hex.decodeHex((ALLF)); // Convert 16F chars to Hexadecimal byte array
         byte [] xOredPanAndSeq = new byte [ALL16FBytes.length]; // New byte array to store xored value
 
         for(int i = 0; i < panAndSeqBytes.length; i++){
             xOredPanAndSeq[i] = (byte) (panAndSeqBytes[i] ^ ALL16FBytes[i]);
         }
         if (debug){
-            System.out.println("Hexformat xored PAN and Sequence: " + HexFormat.of().formatHex(xOredPanAndSeq));
+            System.out.println("Hexformat xored PAN and Sequence: " + Hex.encodeHexString((xOredPanAndSeq)));
         }
-
-        return HexFormat.of().formatHex(xOredPanAndSeq);
+        return Hex.encodeHexString((xOredPanAndSeq));
+//        return HexFormat.of().formatHex(xOredPanAndSeq);
     }
 
     /**

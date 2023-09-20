@@ -2,6 +2,7 @@ package com.bc.utils;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.DecoderException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -41,7 +42,7 @@ public class VisaPvv {
      * @throws InvalidKeyException When key passed is invalid
      */
     public void generateVisaPvv() throws NoSuchPaddingException, IllegalBlockSizeException,
-            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
         StringBuilder pvv = new StringBuilder();
@@ -97,15 +98,21 @@ public class VisaPvv {
      * @return Converted numeric digit
      */
     private String convertHexToDigits(String hexChar){
-        return switch (hexChar) {
-            case "A" -> "0";
-            case "B" -> "1";
-            case "C" -> "2";
-            case "D" -> "3";
-            case "E" -> "4";
-            case "F" -> "5";
-            default -> null;
-        };
+         switch (hexChar) {
+             case "A":
+                 return  "0";
+             case "B":
+                 return  "1";
+             case "C":
+                 return  "2";
+             case "D":
+                 return  "3";
+             case "E":
+                 return  "4";
+             case "F":
+                 return  "5";
+             default:
+                 return null;
+        }
     }
-
 }

@@ -2,6 +2,8 @@ package com.bc.utils;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -9,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public class ArpcGen {
     private boolean isDebug;
 
     public String getArpc() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException,
-            BadPaddingException, InvalidKeyException {
+            BadPaddingException, InvalidKeyException, DecoderException {
         if (csuMethod){
             return generateArpcWithCsu().toUpperCase();
         } else {
@@ -42,7 +43,7 @@ public class ArpcGen {
      * @throws BadPaddingException May throw this exception
      * @throws InvalidKeyException May throw this exception
      */
-    private String generateArpcWithArc() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    private String generateArpcWithArc() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         Xor xor = new Xor();
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
@@ -67,13 +68,15 @@ public class ArpcGen {
      */
     public String convertStringTOHex(String input, int padLength, String padChar, boolean padLeft){
         if (padLeft) {
-            return padChar.repeat(padLength) + HexFormat.of().formatHex(input.getBytes(StandardCharsets.UTF_8));
+//            return padChar.repeat(padLength) + HexFormat.of().formatHex(input.getBytes(StandardCharsets.UTF_8));
+            return padChar.repeat(padLength) + Hex.encodeHexString(input.getBytes(StandardCharsets.UTF_8));
         } else {
-            return HexFormat.of().formatHex(input.getBytes(StandardCharsets.UTF_8)) + padChar.repeat(padLength);
+            return Hex.encodeHexString((input.getBytes(StandardCharsets.UTF_8))) + padChar.repeat(padLength);
+//            return HexFormat.of().formatHex(input.getBytes(StandardCharsets.UTF_8)) + padChar.repeat(padLength);
         }
     }
 
-    private   String generateArpcWithCsu() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    private   String generateArpcWithCsu() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         //Build ARPC segments
         List<String> arpcSegments = buildArpcTransactionData();
@@ -145,7 +148,7 @@ public class ArpcGen {
     }
 
     private String transactionDataEncrypt(String data, String key) throws NoSuchPaddingException,
-            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
 
@@ -156,7 +159,7 @@ public class ArpcGen {
     }
 
     private String transactionDataDecrypt(String data, String key) throws NoSuchPaddingException,
-            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
 

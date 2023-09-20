@@ -3,6 +3,8 @@ package com.bc.utils;
 import com.bc.constants.PINFunctions;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.DecoderException;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -45,7 +47,7 @@ public class IBM3624Pin {
     private String naturalPin;
 
     public void generateIBM3624Pin() throws NoSuchPaddingException,
-            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+            IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
         if (validatePinRequest()){
