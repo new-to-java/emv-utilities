@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PvvGenerateResponse {
-    @JsonProperty("CustomerPIN")
-    private String customerPin;
+    @JsonProperty("PIN")
+    private String pin;
     @JsonProperty("PVV")
     private String pinVerificationValue;
     @JsonProperty("PINLength")

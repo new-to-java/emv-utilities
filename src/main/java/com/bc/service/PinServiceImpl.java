@@ -83,7 +83,7 @@ public class PinServiceImpl {
      * @param visaPvv Visa PVV generation object with PVV generated
      */
     private static void mapPvvGenerationResponse(PvvGenerateResponse pvvGenerateResponse, VisaPvv visaPvv){
-        pvvGenerateResponse.setCustomerPin(visaPvv.getPin());
+        pvvGenerateResponse.setPin(visaPvv.getPin());
         pvvGenerateResponse.setPinLength(String.valueOf(visaPvv.getPin().length()));
         pvvGenerateResponse.setPinVerificationValue(visaPvv.getPinVerificationValue());
     }
