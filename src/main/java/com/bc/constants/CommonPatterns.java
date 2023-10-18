@@ -18,6 +18,7 @@ public class CommonPatterns {
     public static final String HEXADECIMAL_4_DIGITS = "^[0-9A-Fa-f]{4}$";
     public static final String HEXADECIMAL_8_DIGITS = "^[0-9A-Fa-f]{8}$";
     public static final String HEXADECIMAL_10_DIGITS = "^[0-9A-Fa-f]{10}$";
+    public static final String HEXADECIMAL_16_DIGITS = "^[0-9A-Fa-f]{16}$";
     public static final String HEXADECIMAL_32_DIGITS = "^[0-9A-Fa-f]{32}$";
     public static final String ISO_DATE = "^\\d{4}-\\d{2}-\\d{2}$";
 }
