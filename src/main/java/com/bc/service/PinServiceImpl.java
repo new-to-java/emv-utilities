@@ -1,10 +1,9 @@
 package com.bc.service;
 
-import com.bc.requestResponse.PinGenerateRequest;
-import com.bc.requestResponse.PinGenerateResponse;
-import com.bc.requestResponse.PvvGenerateRequest;
-import com.bc.requestResponse.PvvGenerateResponse;
+import com.bc.constants.PINFunctions;
+import com.bc.requestResponse.*;
 import com.bc.utils.IBM3624Pin;
+import com.bc.utils.PinblockFunctions;
 import com.bc.utils.VisaPvv;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -23,6 +22,21 @@ public class PinServiceImpl {
         ibm3624Pin.generateIBM3624Pin();
         mapPinGenerationResponse(pinGenerateResponse, ibm3624Pin);
         return pinGenerateResponse;
+    }
+
+    /**
+     * Driver method for decrypting a PIN block
+     * @param pinblockDecryptRequest object containing values required for PIN generation
+     * @return pinblockDecryptResponse object containing the PIN and PIN Offset values generated
+     */
+    public static PinblockDecryptResponse decryptPinblock(PinblockDecryptRequest pinblockDecryptRequest)
+            throws Exception {
+        PinblockFunctions pinblockFunctions = new PinblockFunctions();
+        PinblockDecryptResponse pinblockDecryptResponse = new PinblockDecryptResponse();
+        mapPinblockDecryptRequest(pinblockDecryptRequest, pinblockFunctions);
+        pinblockFunctions.decryptPinblock();
+        mapPinblockDecryptResponse(pinblockDecryptResponse, pinblockFunctions);
+        return pinblockDecryptResponse;
     }
 
     /**
@@ -63,6 +77,23 @@ public class PinServiceImpl {
         pinGenerateResponse.setPinLength(ibm3624Pin.getPinLength());
         pinGenerateResponse.setPinOffset(ibm3624Pin.getPinOffset());
         pinGenerateResponse.setNaturalPin(ibm3624Pin.getNaturalPin());
+    }
+
+    /**
+     */
+    private static void mapPinblockDecryptRequest(PinblockDecryptRequest pinblockDecryptRequest, PinblockFunctions pinblockFunctions){
+        pinblockFunctions.setPan(pinblockDecryptRequest.getPan());
+        pinblockFunctions.setPinBlock(pinblockDecryptRequest.getPinBlock());
+        pinblockFunctions.setZonePinKey(pinblockDecryptRequest.getZonePinKey());
+    }
+
+    /**
+     */
+    private static void mapPinblockDecryptResponse(PinblockDecryptResponse pinblockDecryptResponse, PinblockFunctions pinblockFunctions){
+        pinblockDecryptResponse.setDecryptedPinBlock(pinblockFunctions.getDecryptedPinBlock());
+        pinblockDecryptResponse.setClearPin(pinblockFunctions.getClearPin());
+        pinblockDecryptResponse.setPinLength(pinblockFunctions.getPinLength());
+        pinblockDecryptResponse.setPinBlockFormat(pinblockFunctions.getPinBlockFormat());
     }
 
     /**
