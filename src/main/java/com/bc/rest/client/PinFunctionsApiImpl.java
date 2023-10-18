@@ -103,7 +103,7 @@ public class PinFunctionsApiImpl {
 //        try {
         ObjectMapper objectMapper = new ObjectMapper();
         log.info(objectMapper.writer().writeValueAsString(pinblockGenerateRequest));
-        PinblockGenerateResponse pinblockGenerateResponse = PinServiceImpl.genetePinblock(pinblockGenerateRequest);
+        PinblockGenerateResponse pinblockGenerateResponse = PinServiceImpl.generatePinblock(pinblockGenerateRequest);
         return Response.status(Response.Status.OK).entity(pinblockGenerateResponse).build();
 //        }
 //        catch(Exception e){

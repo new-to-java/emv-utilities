@@ -47,7 +47,7 @@ public class PinblockFunctions {
             IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
 
         CryptoFunctions cryptoFunctions = new CryptoFunctions();
-        if (validatePinRequest()){
+        if (validatePinblockDecryptRequest()){
             cryptoFunctions.setKey(zonePinKey);
             cryptoFunctions.setInputData(pinBlock);
             decryptedPinBlock = cryptoFunctions.tDEADecrypt().toUpperCase();
@@ -57,15 +57,43 @@ public class PinblockFunctions {
         }
     }
 
+    public void generatePinblock() {
+        CryptoFunctions cryptoFunctions = new CryptoFunctions();
+        if (validatePinblockGenerateRequest()){
+            return;
+        }
+    }
+
     /**
-     * Validate the Pinblock functions request object
+     * Validate the attributes required for Pinblock decrypt request
      * @return True if request object is valid, else return False
      */
-    private boolean validatePinRequest(){
+    private boolean validatePinblockDecryptRequest(){
 
         List<Boolean> validRequest = new ArrayList<>();
         validRequest.add(DataChecker.isNumeric(pan));
         validRequest.add(DataChecker.isHexadecimal(pinBlock));
+        validRequest.add(DataChecker.isHexadecimal(zonePinKey));
+        //Check if any of the validations have failed, if yes, return false, else at end of loop, return true
+        for (Boolean aBoolean : validRequest) {
+            if (!aBoolean) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Validate the attributes required for Pinblock decrypt request
+     * @return True if request object is valid, else return False
+     */
+    private boolean validatePinblockGenerateRequest(){
+
+        List<Boolean> validRequest = new ArrayList<>();
+        validRequest.add(DataChecker.isNumeric(pan));
+        validRequest.add(DataChecker.isNumeric(pin));
+        validRequest.add(DataChecker.isNumeric(String.valueOf(pinBlockFormat)));
         validRequest.add(DataChecker.isHexadecimal(zonePinKey));
         //Check if any of the validations have failed, if yes, return false, else at end of loop, return true
         for (Boolean aBoolean : validRequest) {

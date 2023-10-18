@@ -7,10 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PinblockGenerateResponse {
-    @JsonProperty("ClearPinblock")
-    private String clearPinblock;
     @JsonProperty("EncryptedPinblock")
     private String encryptedPinblock;
+    @JsonProperty("ClearPinblock")
+    private String clearPinblock;
     @JsonProperty("PinLength")
     private char pinLength;
     @JsonProperty("PinblockFormat")

@@ -25,6 +25,18 @@ public class PinServiceImpl {
     }
 
     /**
+     */
+    public static PinblockGenerateResponse generatePinblock(PinblockGenerateRequest pinblockGenerateRequest) {
+        PinblockFunctions pinblockFunctions = new PinblockFunctions();
+        PinblockGenerateResponse pinblockGenerateResponse = new PinblockGenerateResponse();
+        mapPinblockGenerateRequest(pinblockGenerateRequest, pinblockFunctions);
+        pinblockFunctions.generatePinblock();
+        mapPinblockGenerateResponse(pinblockGenerateResponse, pinblockFunctions);
+        return pinblockGenerateResponse;
+    }
+
+
+    /**
      * Driver method for decrypting a PIN block
      * @param pinblockDecryptRequest object containing values required for PIN generation
      * @return pinblockDecryptResponse object containing the PIN and PIN Offset values generated
@@ -90,10 +102,30 @@ public class PinServiceImpl {
     /**
      */
     private static void mapPinblockDecryptResponse(PinblockDecryptResponse pinblockDecryptResponse, PinblockFunctions pinblockFunctions){
-        pinblockDecryptResponse.setDecryptedPinBlock(pinblockFunctions.getDecryptedPinBlock());
+        pinblockDecryptResponse.setDecryptedPinblock(pinblockFunctions.getDecryptedPinBlock());
         pinblockDecryptResponse.setClearPin(pinblockFunctions.getClearPin());
         pinblockDecryptResponse.setPinLength(pinblockFunctions.getPinLength());
-        pinblockDecryptResponse.setPinBlockFormat(pinblockFunctions.getPinBlockFormat());
+        pinblockDecryptResponse.setPinblockFormat(pinblockFunctions.getPinBlockFormat());
+    }
+
+
+    /**
+     */
+    private static void mapPinblockGenerateRequest
+    (PinblockGenerateRequest pinblockGenerateRequest, PinblockFunctions pinblockFunctions){
+        pinblockFunctions.setPan(pinblockGenerateRequest.getPan());
+        pinblockFunctions.setPin(pinblockGenerateRequest.getPin());
+        pinblockFunctions.setPinBlockFormat(pinblockFunctions.getPinBlockFormat());
+        pinblockFunctions.setZonePinKey(pinblockGenerateRequest.getZonePinKey());
+    }
+
+    /**
+     */
+    private static void mapPinblockGenerateResponse(PinblockGenerateResponse pinblockGenerateResponse, PinblockFunctions pinblockFunctions){
+        pinblockGenerateResponse.setEncryptedPinblock(pinblockFunctions.getPinBlock());
+        pinblockGenerateResponse.setClearPinblock(pinblockFunctions.getDecryptedPinBlock());
+        pinblockGenerateResponse.setPinblockFormat(pinblockFunctions.getPinBlockFormat());
+        pinblockGenerateResponse.setPinLength(pinblockFunctions.getPinLength());
     }
 
     /**

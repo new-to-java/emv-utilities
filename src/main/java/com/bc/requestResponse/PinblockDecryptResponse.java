@@ -9,10 +9,10 @@ import lombok.Setter;
 public class PinblockDecryptResponse {
     @JsonProperty("DecryptedPinblock")
     private String decryptedPinblock;
-    @JsonProperty("ClearPIN")
+    @JsonProperty("ClearPin")
     private String ClearPin;
-    @JsonProperty("PINLength")
+    @JsonProperty("PinLength")
     private char pinLength;
-    @JsonProperty("PINBlockFormat")
+    @JsonProperty("PinblockFormat")
     private char pinblockFormat;
 }
