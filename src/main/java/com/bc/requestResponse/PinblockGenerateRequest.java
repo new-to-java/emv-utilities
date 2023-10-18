@@ -10,15 +10,19 @@ import static com.bc.constants.CommonPatterns.*;
 
 @Getter
 @Setter
-public class PinblockDecryptRequest {
+public class PinblockGenerateRequest {
     @JsonProperty("Pan")
     @NotBlank(message = "Pan required, please provide a value.")
     @Pattern(regexp = DECIMAL_16TO19_DIGITS, message = "Pan is required, must be numeric and 16 to 19 digits long.")
     public String pan;
-    @JsonProperty("Pinblock")
-    @NotBlank(message = "Pinblock required, please provide a value.")
-    @Pattern(regexp = HEXADECIMAL_16_DIGITS, message = "Pinblock must be exactly 16 hexadecimal digits.")
-    public String pinBlock;
+    @JsonProperty("Pin")
+    @NotBlank(message = "Pin required, please provide a value.")
+    @Pattern(regexp = DECIMAL_4TO12_DIGITS, message = "Pin must be 4 to 12 decimal digits.")
+    public String pin;
+    @JsonProperty("PinblockFormat")
+    @NotBlank(message = "PinblockFormat required, please provide a value.")
+    @Pattern(regexp = PIN_BLOCK_FORMAT, message = "PinblockFormat must be 0 or 1.")
+    public String pinBlockFormat;
     @JsonProperty("ZonePinKey")
     @NotBlank(message = "ZonePinKey required, please provide a value.")
     @Pattern(regexp = HEXADECIMAL_32_DIGITS, message = "ZonePinKey must be exactly 32 hexadecimal digits.")

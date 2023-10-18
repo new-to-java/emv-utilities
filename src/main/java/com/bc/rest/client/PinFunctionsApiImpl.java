@@ -78,12 +78,33 @@ public class PinFunctionsApiImpl {
     @Path("/Pinblock/Decrypt")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response generatePvv(@Valid PinblockDecryptRequest pinblockDecryptRequest) throws Exception {
+    public Response decryptPinblock(@Valid PinblockDecryptRequest pinblockDecryptRequest) throws Exception {
 //        try {
         ObjectMapper objectMapper = new ObjectMapper();
         log.info(objectMapper.writer().writeValueAsString(pinblockDecryptRequest));
         PinblockDecryptResponse pinblockDecryptResponse = PinServiceImpl.decryptPinblock(pinblockDecryptRequest);
         return Response.status(Response.Status.OK).entity(pinblockDecryptResponse).build();
+//        }
+//        catch(Exception e){
+//            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+//        }
+    }
+
+    /**
+     * Method hosting REST API and functions for encrypting a Pin and generating a Pin block
+     * @return JSON response object containing clear Pin block, encrypted Pin block, Pin length
+     */
+
+    @POST
+    @Path("/Pinblock/Generate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response generatePvv(@Valid PinblockGenerateRequest pinblockGenerateRequest) throws Exception {
+//        try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        log.info(objectMapper.writer().writeValueAsString(pinblockGenerateRequest));
+        PinblockGenerateResponse pinblockGenerateResponse = PinServiceImpl.genetePinblock(pinblockGenerateRequest);
+        return Response.status(Response.Status.OK).entity(pinblockGenerateResponse).build();
 //        }
 //        catch(Exception e){
 //            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

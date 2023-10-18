@@ -22,6 +22,7 @@ import java.util.List;
 public class PinblockFunctions {
 
     private String pan;
+    private String pin;
     private String pinBlock;
     private String zonePinKey;
     private String decryptedPinBlock;
