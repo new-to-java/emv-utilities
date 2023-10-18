@@ -1,9 +1,6 @@
 package com.bc.rest.client;
 
-import com.bc.requestResponse.PinGenerateRequest;
-import com.bc.requestResponse.PinGenerateResponse;
-import com.bc.requestResponse.PvvGenerateRequest;
-import com.bc.requestResponse.PvvGenerateResponse;
+import com.bc.requestResponse.*;
 import com.bc.service.PinServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
@@ -71,6 +68,28 @@ public class PinFunctionsApiImpl {
 //            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
 //        }
     }
+
+    /**
+     * Method hosting REST API and functions for decrypting a PIN block and deriving clear PIN
+     * @return JSON response object containing decrypted PIN block, clear PIN and PIN length
+     */
+
+    @POST
+    @Path("/Pinblock/Decrypt")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response generatePvv(@Valid PinblockDecryptRequest pinblockDecryptRequest) throws Exception {
+//        try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        log.info(objectMapper.writer().writeValueAsString(pinblockDecryptRequest));
+        PinblockDecryptResponse pinblockDecryptResponse = PinServiceImpl.decryptPinblock(pinblockDecryptRequest);
+        return Response.status(Response.Status.OK).entity(pinblockDecryptResponse).build();
+//        }
+//        catch(Exception e){
+//            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+//        }
+    }
+
     /*
      * Pending implementation
      */
