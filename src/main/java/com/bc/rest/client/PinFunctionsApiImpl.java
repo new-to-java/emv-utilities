@@ -99,7 +99,7 @@ public class PinFunctionsApiImpl {
     @Path("/Pinblock/Generate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response generatePvv(@Valid PinblockGenerateRequest pinblockGenerateRequest) throws Exception {
+    public Response generatePinblock(@Valid PinblockGenerateRequest pinblockGenerateRequest) throws Exception {
 //        try {
         ObjectMapper objectMapper = new ObjectMapper();
         log.info(objectMapper.writer().writeValueAsString(pinblockGenerateRequest));

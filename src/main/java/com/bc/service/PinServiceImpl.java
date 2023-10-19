@@ -6,6 +6,13 @@ import com.bc.utils.IBM3624Pin;
 import com.bc.utils.PinblockFunctions;
 import com.bc.utils.VisaPvv;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.apache.commons.codec.DecoderException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @ApplicationScoped
 public class PinServiceImpl {
@@ -26,7 +33,7 @@ public class PinServiceImpl {
 
     /**
      */
-    public static PinblockGenerateResponse generatePinblock(PinblockGenerateRequest pinblockGenerateRequest) {
+    public static PinblockGenerateResponse generatePinblock(PinblockGenerateRequest pinblockGenerateRequest) throws DecoderException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         PinblockFunctions pinblockFunctions = new PinblockFunctions();
         PinblockGenerateResponse pinblockGenerateResponse = new PinblockGenerateResponse();
         mapPinblockGenerateRequest(pinblockGenerateRequest, pinblockFunctions);
@@ -115,7 +122,7 @@ public class PinServiceImpl {
     (PinblockGenerateRequest pinblockGenerateRequest, PinblockFunctions pinblockFunctions){
         pinblockFunctions.setPan(pinblockGenerateRequest.getPan());
         pinblockFunctions.setPin(pinblockGenerateRequest.getPin());
-        pinblockFunctions.setPinBlockFormat(pinblockFunctions.getPinBlockFormat());
+        pinblockFunctions.setPinBlockFormat(pinblockGenerateRequest.getPinBlockFormat().charAt(0));
         pinblockFunctions.setZonePinKey(pinblockGenerateRequest.getZonePinKey());
     }
 
